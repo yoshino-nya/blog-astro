@@ -1,0 +1,42 @@
+---
+import { render } from 'astro:content';
+import { formatDateTime } from '../utils/date';
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<div class="card-container">
+    <div class="info-container">
+        <img src="/avatar.jpg" />
+        <div class="info">
+            <div style="font-size: 30px;">yoshino</div>
+            <div class="date">{formatDateTime(post.data.date)}</div>
+        </div>
+    </div>
+
+    <Content />
+</div>
+
+<style lang="scss">
+    .card-container {
+        margin-top: 40px;
+        .info-container {
+            display: flex;
+            .info {
+                margin-left: 20px;
+                display: flex;
+                flex-direction: column;
+            }
+            img {
+                width: 60px;
+                // border-radius: 50%;
+            }
+            .date {
+                font-size: 14px;
+                margin-bottom: 0;
+                margin-top: auto;
+            }
+        }
+    }
+</style>

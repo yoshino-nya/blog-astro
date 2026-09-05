@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../Layouts/BaseLayout.astro';
+import { formateDate } from '../utils/date';
+
+const posts = (await getCollection('blog')).sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<BaseLayout>
+    <div class="post-container">
+        {
+            posts.map((post) => (
+                <div class="post">
+                    <a href={`/blog/${post.id}`}>{post.data.title}</a>
+
+                    <div class="date">{formateDate(post.data.date)}</div>
+                </div>
+            ))
+        }
+    </div>
+</BaseLayout>
+
+<style lang="scss">
+    .post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+        .post:first-child {
+            margin-top: 20px;
+        }
+    }
+
+    .post {
+        display: flex;
+        margin-bottom: 20px;
+
+        /*
+        flex-shrink: 0 让日期在手机端端不被压缩
+        似乎有的情况得用 white-space: nowrap | text-wrap-mode: nowrap
+        */
+        .date {
+            display: flex;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+    }
+</style>

@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import DailyCard from '../components/DailyCard.astro';
+import BaseLayout from '../Layouts/BaseLayout.astro';
+
+const daily = (await getCollection('daily')).sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<BaseLayout>
+    <div class="daily-container">
+        {daily.map((post) => <DailyCard post={post} />)}
+    </div>
+</BaseLayout>
+
+<style lang="scss">
+    .daily-container {
+        max-width: 600px;
+        padding: 0 20px;
+        margin: 0 auto;
+    }
+</style>

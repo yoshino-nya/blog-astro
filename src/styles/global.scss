@@ -1,0 +1,40 @@
+@import 'lxgw-wenkai-webfont/style.css';
+@import 'katex/dist/katex.min.css';
+
+body {
+    font-family: "LXGW Wenkai", sans-serif;
+    color: #3c3c43;
+
+    img {
+        max-width: 100%;
+    }
+
+    a {
+        color: #3451b2;
+    }
+
+    code {
+        font-family: "Jetbrains Mono", "LXGW Wenkai Mono", monospace;
+    }
+
+    :not(pre)>code {
+        background-color: #ffeef2;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    blockquote {
+        border-left: 2px solid gray;
+        color: rgb(103 103 108);
+        font-style: italic;
+        margin: 1.5rem 0;
+        padding: 1rem 1.5rem;
+    }
+
+    pre {
+        border-radius: 5px;
+        border: 1px solid rgb(219 219 219);
+        padding: 14px 16px;
+    }
+}

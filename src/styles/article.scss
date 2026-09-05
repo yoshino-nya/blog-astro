@@ -1,0 +1,19 @@
+article {
+    max-width: 720px;
+    margin: 0 auto;
+
+    padding: 0 20px;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 700;
+    }
+
+    h1:last-child {
+        display: none;
+    }
+}
