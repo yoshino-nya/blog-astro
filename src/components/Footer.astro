@@ -1,6 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+
+const [blog, daily, notes] = await Promise.all([
+    getCollection('blog'),
+    getCollection('daily'),
+    getCollection('notes'),
+]);
+
+const allPosts = [...blog, ...daily, ...notes];
+const segmenter = new Intl.Segmenter('zh', { granularity: 'word' });
+let totalWords = 0;
+for (const post of allPosts) {
+    if (!post.body) continue;
+    const words = [...segmenter.segment(post.body)].filter((s) => s.isWordLike);
+    totalWords += words.length;
+}
+
+const formatted = totalWords.toLocaleString('zh-CN');
+---
+
 <footer>
     <div class="footer-container">
         <p>&copy; 2026 yoshino-nya</p>
+        <p>共 {formatted} 字</p>
         <p>
             <a href="https://opensource.org/licenses/MIT">MIT License</a>
         </p>

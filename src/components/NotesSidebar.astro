@@ -1,0 +1,121 @@
+---
+import { formateDate } from '../utils/date';
+
+interface Note {
+    id: string;
+    title: string;
+    date: Date;
+}
+
+interface Props {
+    notes: Note[];
+    currentId?: string;
+}
+
+const { notes, currentId } = Astro.props;
+---
+
+<aside class="sidebar">
+    <nav>
+        <ul>
+            {
+                notes.map((note) => (
+                    <li>
+                        <a
+                            href={`/notes/${note.id}`}
+                            class:list={[{ active: note.id === currentId }]}
+                        >
+                            {note.title}
+                        </a>
+                        <span class="date">{formateDate(note.date)}</span>
+                    </li>
+                ))
+            }
+        </ul>
+    </nav>
+</aside>
+
+<style lang="scss">
+    .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        border-right: 1px solid #ffd3f5;
+        padding: 20px 0;
+        overflow-y: auto;
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 0;
+        }
+
+        a {
+            display: block;
+            padding: 8px 20px;
+            color: #3c3c43;
+            text-decoration: none;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            transition: all 0.15s;
+
+            &:hover {
+                background: #fff5f9;
+            }
+
+            &.active {
+                border-left-color: #ffd3f5;
+                background: #fff5f9;
+                font-weight: 600;
+            }
+        }
+
+        .date {
+            display: block;
+            padding: 0 20px 8px 23px;
+            font-size: 12px;
+            color: #999;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ffd3f5;
+            padding: 10px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+
+            nav ul {
+                display: flex;
+                gap: 4px;
+                padding: 0 16px;
+            }
+
+            li {
+                flex-shrink: 0;
+            }
+
+            a {
+                padding: 6px 14px;
+                border-left: none;
+                border-radius: 6px;
+                white-space: nowrap;
+                font-size: 13px;
+
+                &.active {
+                    border-left: none;
+                    background: #ffd3f5;
+                }
+            }
+
+            .date {
+                display: none;
+            }
+        }
+    }
+</style>

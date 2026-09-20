@@ -1,0 +1,108 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../Layouts/BaseLayout.astro';
+import NotesSidebar from '../../components/NotesSidebar.astro';
+import '../../styles/article.scss';
+import { formatDateTime } from '../../utils/date';
+
+export const getStaticPaths = (async () => {
+    const notes = await getCollection('notes');
+    const sorted = notes.sort(
+        (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+    );
+
+    // 索引页（/notes）
+    const indexPage = {
+        params: { slug: undefined },
+        props: {
+            notes: sorted.map((n) => ({
+                id: n.id,
+                title: n.data.title,
+                date: n.data.date,
+            })),
+            currentNote: sorted[0] ?? null,
+        },
+    };
+
+    // 每篇笔记页（/notes/xxx）
+    const notePages = sorted.map((post) => ({
+        params: { slug: post.id },
+        props: {
+            notes: sorted.map((n) => ({
+                id: n.id,
+                title: n.data.title,
+                date: n.data.date,
+            })),
+            currentNote: post,
+        },
+    }));
+
+    return [indexPage, ...notePages];
+}) satisfies GetStaticPaths;
+
+const { notes, currentNote } = Astro.props;
+
+const rendered = currentNote ? await render(currentNote) : null;
+---
+
+<BaseLayout class="notes-layout">
+    <div class="notes-container">
+        <NotesSidebar
+            notes={notes}
+            currentId={currentNote?.id}
+        />
+        <main class="notes-content">
+            {rendered ? (
+                <article>
+                    <h1>{currentNote!.data.title}</h1>
+                    <p>{formatDateTime(currentNote!.data.date)}</p>
+                    <rendered.Content />
+                </article>
+            ) : (
+                <div class="empty">
+                    <p>暂无笔记</p>
+                </div>
+            )}
+        </main>
+    </div>
+</BaseLayout>
+
+<style lang="scss">
+    .notes-container {
+        display: flex;
+        max-width: 960px;
+        margin: 0 auto;
+        min-height: calc(100vh - 160px);
+    }
+
+    .notes-content {
+        flex: 1;
+        padding: 20px 30px;
+        min-width: 0;
+
+        article {
+            max-width: 720px;
+        }
+
+        .empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .notes-container {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .notes-content {
+            padding: 16px;
+        }
+    }
+</style>
