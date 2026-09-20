@@ -1,0 +1,139 @@
+---
+import { codeToHtml } from 'shiki';
+import BaseLayout from '../Layouts/BaseLayout.astro';
+
+interface TreeEntry {
+    path: string;
+    type: string;
+}
+
+interface BlobContent {
+    content: string;
+}
+
+const treeRes = await fetch(
+    'https://api.github.com/repos/yoshino-nya/dotfiles/git/trees/main?recursive=1',
+);
+const tree = await treeRes.json();
+const blobs: TreeEntry[] = tree.tree.filter(
+    (e: TreeEntry) => e.type === 'blob' && !e.path.startsWith('.'),
+);
+
+const langMap: Record<string, string> = {
+    sh: 'bash',
+    json: 'json',
+    conf: 'ini',
+    vim: 'vim',
+    bashrc: 'bash',
+    vimrc: 'vim',
+};
+
+const files = await Promise.all(
+    blobs.map(async (entry: TreeEntry) => {
+        const res = await fetch(
+            `https://api.github.com/repos/yoshino-nya/dotfiles/contents/${entry.path}`,
+        );
+        const data: BlobContent = await res.json();
+        const bytes = Uint8Array.from(atob(data.content), (c) =>
+            c.charCodeAt(0),
+        );
+        const content = new TextDecoder().decode(bytes);
+        const ext = entry.path.split('.').pop() ?? '';
+        const lang = langMap[ext] ?? 'text';
+        const id = entry.path.replace(/[^a-zA-Z0-9]/g, '-');
+        const html = await codeToHtml(content, {
+            lang,
+            themes: { light: 'github-light', dark: 'github-dark' },
+        });
+        return { path: entry.path, id, html };
+    }),
+);
+---
+
+<BaseLayout>
+    <div class="dotfiles-container">
+        <h1>dotfiles</h1>
+        <p class="repo-link">
+            <a href="https://github.com/yoshino-nya/dotfiles" target="_blank">
+                github.com/yoshino-nya/dotfiles
+            </a>
+        </p>
+
+        <nav class="file-nav">
+            {files.map((file) => (
+                <a href={`#${file.id}`}>{file.path}</a>
+            ))}
+        </nav>
+
+        {files.map((file) => (
+            <section class="file-block" id={file.id}>
+                <h2>{file.path}</h2>
+                <Fragment set:html={file.html} />
+            </section>
+        ))}
+    </div>
+</BaseLayout>
+
+<style lang="scss">
+    .dotfiles-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+
+        h1 {
+            margin-bottom: 4px;
+        }
+
+        .repo-link {
+            margin-top: 0;
+            font-size: 14px;
+        }
+    }
+
+    .file-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 20px 0;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 6px;
+        border: 1px solid #eee;
+
+        a {
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #3c3c43;
+            text-decoration: none;
+            font-family: 'Jetbrains Mono', 'LXGW WenKai Mono', monospace;
+
+            &:hover {
+                border-color: #ffd3f5;
+                background: #fff5f9;
+            }
+        }
+    }
+
+    .file-block {
+        margin: 30px 0;
+
+        h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        :global(pre) {
+            overflow-x: auto;
+            border-radius: 5px;
+            border: 1px solid rgb(219 219 219);
+            padding: 14px 16px;
+        }
+    }
+</style>
