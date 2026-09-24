@@ -2,14 +2,39 @@
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import '../styles/global.scss';
+
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+    class?: string;
+}
+
+const {
+    title = "yoshino-nya's blog",
+    description = 'yoshino-nya 的部落格',
+    image = '/og-image.png',
+} = Astro.props;
+const canonicalURL = Astro.url.href;
+const imageURL = new URL(image, Astro.site ?? Astro.url).href;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>yoshino-nya</title>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalURL} />
+
+        <!-- <meta property="og:type" content={type} /> -->
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:image" content={imageURL} />
+        <meta property="og:site_name" content="yoshino-nya" />
+        <meta property="og:locale" content="zh_CN" />
     </head>
     <body>
         <Header />
