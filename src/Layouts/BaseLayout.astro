@@ -13,7 +13,7 @@ interface Props {
 const {
     title = "yoshino-nya's blog",
     description = 'yoshino-nya 的部落格',
-    image = '/og-image.png',
+    image = '/avatar.jpg',
 } = Astro.props;
 const canonicalURL = Astro.url.href;
 const imageURL = new URL(image, Astro.site ?? Astro.url).href;
